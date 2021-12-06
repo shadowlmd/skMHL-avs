@@ -8,13 +8,13 @@
  Version : v0.1beta24-avs2
  License : GNU GPL v2.0
  Compiler: FreePascal Compiler v1.0.10
- 
-=============================================================================== 
+
+===============================================================================
 }
 
 {$IFNDEF FPC}
  {$B-}
-{$ENDIF} 
+{$ENDIF}
 unit skMHLsq;
 
 {$IFDEF DELPHI}

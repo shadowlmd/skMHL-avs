@@ -223,7 +223,7 @@ unit skMHL;
 
 {$IFDEF FPC}
  {$WARNINGS OFF}
-{$ENDIF} 
+{$ENDIF}
 
 interface
 uses

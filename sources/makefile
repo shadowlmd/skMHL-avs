@@ -15,14 +15,14 @@ all:
 
 clean:
 	@rm -f $(LIB)/*.ppu
-	@rm -f $(LIB)/*.o	
+	@rm -f $(LIB)/*.o
 
 install:
 	echo "Installing units"
 	@mkdir $(FPCPaths)/skmhl
 	@cp $(LIB)/*.o $(FPCPath)/skmhl
 	@cp $(LIB)/*.ppu $(FPCPath)/skmhl
-	
+
 help:
 	@echo ""
 	@echo "make without params - compile library"

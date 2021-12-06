@@ -9,16 +9,16 @@
  License : GNU GPL v2.0
  Compiler: FreePascal Compiler v1.0.10
 
-=============================================================================== 
+===============================================================================
 }
 
 {$IFNDEF FPC}
  {$Q-,I-,F+,X+,R-}
  {&AlignRec-,Use32-}
-{$ENDIF} 
+{$ENDIF}
 unit skCommon;
 
-{$IFDEF FPC} 
+{$IFDEF FPC}
  {$MODE TP}
  {$WARNINGS OFF}
 {$ENDIF}

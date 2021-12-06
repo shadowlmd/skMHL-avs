@@ -8,8 +8,8 @@
  Version : v0.1beta24-avs2
  License : GNU GPL v2.0
  Compiler: FreePascal Compiler v1.0.10
- 
-=============================================================================== 
+
+===============================================================================
 }
 
 {$DEFINE MSG}
@@ -117,7 +117,7 @@ function OpenMessageBase(var Base: PMessageBase; const ID: String): Boolean;
   if InitMessageBase(Base, ID) then
    begin
     SplitID(ID, Format, Path);
-    
+
     Path:=ParsePath(Path);
 
     if not Base^.Open(Path) then
@@ -143,9 +143,9 @@ function OpenOrCreateMessageBase(var Base: PMessageBase; const ID: String): Bool
   if InitMessageBase(Base, ID) then
    begin
     SplitID(ID, Format, Path);
-    
+
     Path:=ParsePath(Path);
-    
+
    {$IFDEF FPC}
     if (not Base^.Exist(Path)) then begin
      case (Format) of
@@ -202,7 +202,7 @@ function ExistMessageBase(const ID: String): Boolean;
   if InitMessageBase(Base, ID) then
    begin
     SplitID(ID, Format, Path);
-    
+
     Path:=ParsePath(Path);
 
     ExistMessageBase:=Base^.Exist(Path);
