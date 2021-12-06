@@ -39,6 +39,7 @@ const
  jamSEENBY              = $07D1;
  jamPATH                = $07D2;
  jamFLAGS               = $07D3;
+ jamTZUTC               = $07D4;
 
  jamaPrivate            = $00000004;
  jamaCrash              = $00000100;
@@ -592,6 +593,7 @@ function TJamMessageBase.OpenMessage: Boolean;
      jamREPLY: PutString('REPLY: ' + S);
      jamPID: PutString('PID: ' + S);
      jamFLAGS: PutString('FLAGS: ' + S);
+     jamTZUTC: PutString(#1'TZUTC: ' + S);
      jamUnknown:
       if (Copy(S, 1, 4) <> 'Via ') and (Copy(S, 1, 4) <> 'Recd') and (Copy(S, 1, 9) <> 'Forwarded') then
        PutString(#1 + S);
@@ -736,6 +738,7 @@ function TJamMessageBase.OpenMessageHeader: Boolean;
      jamPID: PutString('PID: ' + S);
      jamUnknown: PutString('' + S);
      jamFLAGS: PutString('FLAGS: ' + S);
+     jamTZUTC: PutString(#1'TZUTC: ' + S);
     end;
 
     Inc(Count);
@@ -929,6 +932,7 @@ function TJamMessageBase.WriteMessage: Boolean;
      end else
     if Copy(S, 1, 6) = 'PID: ' then AddSubField(jamPID, Copy(S, 7, 255)) else
     if Copy(S, 1, 8) = 'FLAGS: ' then AddSubField(jamFLAGS, Copy(S, 9, 255)) else
+    if Copy(S, 1, 8) = #1'TZUTC: ' then AddSubField(jamTZUTC, Copy(S, 9, 255)) else
     if Copy(S, 1, 5) = 'Via ' then AddSubField(jamVia, Copy(S, 6, 255)) else
     if Copy(S, 1, 9) = 'SEEN-BY: ' then AddSubField(jamSEENBY, Copy(S, 10, 255)) else
     if Copy(S, 1, 7) = 'PATH: ' then AddSubField(jamPATH, Copy(S, 8, 255)) else
