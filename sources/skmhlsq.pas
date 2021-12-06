@@ -428,6 +428,7 @@ function TSquishMessageBase.OpenMessage: Boolean;
   CIBLength, K: Longint;
   Line: PChar;
   LineCh: Array[1..2] Of Char;
+  Empty: Boolean;
  begin
   CloseMessage;
 
@@ -475,6 +476,8 @@ function TSquishMessageBase.OpenMessage: Boolean;
 
   CIB^[CIBLength]:=#1;
 
+  Empty := True;
+
   ToASCIIZ('', Line);
 
   for K:=1 to CIBLength do
@@ -483,15 +486,21 @@ function TSquishMessageBase.OpenMessage: Boolean;
 
     if (LineCh[1] = #1) and (K <> 1) then
      begin
-      LineCh[1]:=#13;
+      if Empty and (K <> CIBLength) then
+       Empty := False;
 
-      GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
+      if not Empty then
+       begin
+        LineCh[1]:=#13;
 
-      GetMessageTextStream^.Write(LineCh[1], 1);
+        GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
 
-      LineCh[1]:=#1;
+        GetMessageTextStream^.Write(LineCh[1], 1);
 
-      ToASCIIZ('', Line);
+        LineCh[1]:=#1;
+
+        ToASCIIZ('', Line);
+       end;
      end;
 
     ConcatASCIIZ(Line, @LineCh);
