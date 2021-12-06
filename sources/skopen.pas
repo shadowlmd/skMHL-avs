@@ -151,13 +151,13 @@ function OpenOrCreateMessageBase(var Base: PMessageBase; const ID: String): Bool
      case (Format) of
       mbfSquish: begin
                   CreateFile(Path + Dot + esSQD);
-		  CreateFile(Path + Dot + esSQI);
-		 end;
+                  CreateFile(Path + Dot + esSQI);
+                 end;
       mbfJam   : begin
                   CreateFile(Path + Dot + ejJHR);
-		  CreateFile(Path + Dot + ejJDX);
-		  CreateFile(Path + Dot + ejJDT);
-		 end;
+                  CreateFile(Path + Dot + ejJDX);
+                  CreateFile(Path + Dot + ejJDT);
+                 end;
      end;
     end;
    {$ENDIF}
