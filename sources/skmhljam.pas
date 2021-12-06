@@ -313,6 +313,7 @@ function TJamMessageBase.Create(const Path: String): Boolean;
  var
   DateTime: TMessageBaseDateTime;
   S: String;
+  QW: QWord;
  begin
   Create:=False;
 
@@ -378,11 +379,12 @@ function TJamMessageBase.Create(const Path: String): Boolean;
 
    GetCurrentMessageBaseDateTime(DateTime);
 
-   MessageBaseDateTimeToUnixDateTime(DateTime, JamBaseHeader.Created);
+   MessageBaseDateTimeToUnixDateTime(DateTime, QW);
+   JamBaseHeader.Created := Longword(QW);
 
    JamBaseHeader.ModCounter:=0;
    JamBaseHeader.ActiveMsgs:=0;
-   JamBaseHeader.PwdCRC:=-1;
+   JamBaseHeader.PwdCRC:=$FFFFFFFF;
    JamBaseHeader.BaseMsgNum:=1;
 
    HeaderLink^.Seek(0);
@@ -863,13 +865,19 @@ procedure TJamMessageBase.GetArrivedDateTime(var DateTime: TMessageBaseDateTime)
  end;
 
 procedure TJamMessageBase.SetWrittenDateTime(var DateTime: TMessageBaseDateTime);
+ var
+  QW: QWord;
  begin
-  MessageBaseDateTimeToUnixDateTime(DateTime, JamMessageHeader.JamHeader.DateWritten);
+  MessageBaseDateTimeToUnixDateTime(DateTime, QW);
+  JamMessageHeader.JamHeader.DateWritten := Longword(QW);
  end;
 
 procedure TJamMessageBase.SetArrivedDateTime(var DateTime: TMessageBaseDateTime);
+ var
+  QW: QWord;
  begin
-  MessageBaseDateTimeToUnixDateTime(DateTime, JamMessageHeader.JamHeader.DateArrived);
+  MessageBaseDateTimeToUnixDateTime(DateTime, QW);
+  JamMessageHeader.JamHeader.DateArrived := Longword(QW);
  end;
 
 function TJamMessageBase.WriteMessage: Boolean;

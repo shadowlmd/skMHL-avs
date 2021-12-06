@@ -64,10 +64,10 @@ uses
      vpSysLow;
 {$ELSE}
 {$IFDEF FPC}
+     SysUtils,
      Objects,
      Dos,
      Strings,
-     SysUtils,
      skMHLos;
 {$ELSE}
      Objects,
@@ -134,7 +134,7 @@ type
  end;
 
  TSquishFrame = packed record
-  Id: Longint;
+  Id: Longword;
   NextFrame: Longint;
   PrevFrame: Longint;
   FrameLength: Longint;
@@ -150,8 +150,8 @@ type
   Resvd: System.Word;
   SubFieldLen: Longint;
   TimesRead: Longint;
-  MsgIdCrc: Longint;
-  ReplyCrc: Longint;
+  MsgIdCrc: Longword;
+  ReplyCrc: Longword;
   ReplyTo: Longint;
   ReplyFirst: Longint;
   ReplyNext: Longint;
@@ -163,7 +163,7 @@ type
   Attr2: Longint;
   TextOfs: Longint;
   TextLen: Longint;
-  PwdCrc: Longint;
+  PwdCrc: Longword;
   Cost: Longint;
  end;
 
@@ -177,7 +177,7 @@ type
   Created: Longword;
   ModCounter: Longint;
   ActiveMsgs: Longint;
-  PwdCRC: Longint;
+  PwdCRC: Longword;
   BaseMsgNum: Longint;
   Extra: array[1..1000] of Char;
  end;
@@ -1538,9 +1538,9 @@ procedure Delay(const ms: Longint);
  end;
  {$ELSE}
  {$IFDEF FPC}
- Begin
-  Crt.Delay(Ms);
- End;
+ begin
+  Sleep(ms);
+ end;
  {$ELSE}
  var
   Anchor, Current: Longint;

@@ -110,7 +110,7 @@ procedure TMessageBaseFileStream.UpdateStatus;
 
 function TMessageBaseFileFind.StartSearch(const Mask: String; Attributes: Longint): Boolean;
  begin
-  FindFirst(Mask, Attributes, Sr);
+  Dos.FindFirst(Mask, Attributes, Sr);
 
   Fresh;
 
@@ -119,7 +119,7 @@ function TMessageBaseFileFind.StartSearch(const Mask: String; Attributes: Longin
 
 function TMessageBaseFileFind.NextSearch: Boolean;
  begin
-  FindNext(Sr);
+  Dos.FindNext(Sr);
 
   Fresh;
 
@@ -129,7 +129,11 @@ function TMessageBaseFileFind.NextSearch: Boolean;
 procedure TMessageBaseFileFind.StopSearch;
  begin
   {$IFDEF VIRTUALPASCAL}
-  FindClose(Sr);
+  Dos.FindClose(Sr);
+  {$ELSE}
+  {$IFDEF FPC}
+  Dos.FindClose(Sr);
+  {$ENDIF}
   {$ENDIF}
  end;
 

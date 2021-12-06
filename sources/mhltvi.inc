@@ -39,7 +39,7 @@ type
 
  PMessageBaseFileFind = ^TMessageBaseFileFind;
  TMessageBaseFileFind = object(TMessageBaseFind)
-  Sr: SearchRec;
+  Sr: Dos.SearchRec;
   function StartSearch(const Mask: String; Attributes: Longint): Boolean; virtual;
   function NextSearch: Boolean; virtual;
   procedure StopSearch; virtual;
