@@ -86,8 +86,8 @@ type
   Link: PMessageBaseStream;
   Header: TFidoHeader;
   procedure RebuildIndex;
-  procedure SetMapDot(Num: Integer; Value: Boolean);
-  function GetMapDot(Num: Integer): Boolean;
+  procedure SetMapDot(Num: Word; Value: Boolean);
+  function GetMapDot(Num: Word): Boolean;
   function MapAttribute(var Attribute: Longint): Boolean;
  end;
 
@@ -821,11 +821,7 @@ procedure TFidoMessageBase.SetRead(const Value: Boolean);
 procedure TFidoMessageBase.RebuildIndex;
  var
   Find: PMessageBaseFind;
-{$IFDEF VIRTUALPASCAL}
   Num, Code: Longint;
-{$ELSE}
-  Num, Code: Integer;
-{$ENDIF}
  begin
   FillChar(Map, SizeOf(Map), 0);
 
@@ -852,9 +848,9 @@ procedure TFidoMessageBase.RebuildIndex;
   Dispose(Find, Done);
  end;
 
-procedure TFidoMessageBase.SetMapDot(Num: Integer; Value: Boolean);
+procedure TFidoMessageBase.SetMapDot(Num: Word; Value: Boolean);
  var
-  N: Integer;
+  N: Word;
  begin
   if Num >= MaxMapSize then
    Exit;
@@ -875,7 +871,7 @@ procedure TFidoMessageBase.SetMapDot(Num: Integer; Value: Boolean);
    end;
  end;
 
-function TFidoMessageBase.GetMapDot(Num: Integer): Boolean;
+function TFidoMessageBase.GetMapDot(Num: Word): Boolean;
  begin
   if Num >= MaxMapSize then
    begin

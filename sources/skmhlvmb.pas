@@ -55,8 +55,8 @@ type
 
   constructor Init(const AStream: PStream);
 
-  procedure Read(var Buf; Count: Word); virtual;
-  procedure Write(var Buf; Count: Word); virtual;
+  procedure Read(var Buf; Count: Longint); virtual;
+  procedure Write(var Buf; Count: Longint); virtual;
   procedure Seek(Position: Longint); virtual;
   function GetPos: Longint; virtual;
   function GetSize: Longint; virtual;
@@ -117,14 +117,14 @@ constructor TVirtualStreamLinker.Init(const AStream: PStream);
   Stream:=AStream;
  end;
 
-procedure TVirtualStreamLinker.Read(var Buf; Count: Word);
+procedure TVirtualStreamLinker.Read(var Buf; Count: Longint);
  begin
   Stream^.Read(Buf, Count);
 
   Status:=Stream^.Status;
  end;
 
-procedure TVirtualStreamLinker.Write(var Buf; Count: Word);
+procedure TVirtualStreamLinker.Write(var Buf; Count: Longint);
  begin
   Stream^.Write(Buf, Count);
 
@@ -175,7 +175,7 @@ procedure TVirtualStreamLinker.Reset;
 {$IFNDEF DELPHI}
 procedure CopyFromMHLStream(var Source: TMessageBaseStream; var Destination: TStream; Count: Longint);
  var
-  N: Word;
+  N: Longint;
   Buffer: array[0..CopyFromBufferSize] of Byte;
  begin
   while Count > 0 do
@@ -194,7 +194,7 @@ procedure CopyFromMHLStream(var Source: TMessageBaseStream; var Destination: TSt
 
 procedure CopyFromTVStream(var Source: TStream; var Destination: TMessageBaseStream; Count: Longint);
  var
-  N: Word;
+  N: Longint;
   Buffer: array[0..CopyFromBufferSize] of Byte;
  begin
   while Count > 0 do

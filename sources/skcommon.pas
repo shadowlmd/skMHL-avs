@@ -42,6 +42,12 @@ interface
  {$ENDIF}
 {$ENDIF}
 
+{$IFDEF FPC}
+ {$IFOPT H+}
+  {$DEFINE HUGEISON}
+ {$ENDIF}
+{$ENDIF}
+
 {$IFNDEF HUGEISON}
  {$DEFINE ASCIIZFIX}
 {$ENDIF}
@@ -57,11 +63,19 @@ uses
      Strings,
      vpSysLow;
 {$ELSE}
+{$IFDEF FPC}
+     Objects,
+     Dos,
+     Strings,
+     SysUtils,
+     skMHLos;
+{$ELSE}
      Objects,
      Dos,
      Crt,
      Strings,
      skMHLos;
+{$ENDIF}
 {$ENDIF}
 {$ENDIF}
 
@@ -141,9 +155,9 @@ type
   ReplyTo: Longint;
   ReplyFirst: Longint;
   ReplyNext: Longint;
-  DateWritten: Longint;
-  DateRcvd: Longint;
-  DateArrived: Longint;
+  DateWritten: Longword;
+  DateRcvd: Longword;
+  DateArrived: Longword;
   MsgNum: Longint;
   Attr1: Longint;
   Attr2: Longint;
@@ -160,7 +174,7 @@ type
 
  TJamBaseHeader = packed record
   Signature: array[1..4] of Char;
-  Created: Longint;
+  Created: Longword;
   ModCounter: Longint;
   ActiveMsgs: Longint;
   PwdCRC: Longint;
@@ -310,8 +324,8 @@ type
 
   procedure CopyFrom(var S: TMessageBaseStream; Count: Longint); virtual;
 
-  procedure Read(var Buf; Count: Word); virtual;
-  procedure Write(var Buf; Count: Word); virtual;
+  procedure Read(var Buf; Count: Longint); virtual;
+  procedure Write(var Buf; Count: Longint); virtual;
   procedure Seek(Position: Longint); virtual;
   function GetPos: Longint; virtual;
   function GetSize: Longint; virtual;
@@ -387,9 +401,9 @@ function ExtractWord(N: Byte; const S: String; WordDelims: TCharSet): String;
 procedure ToASCIIZ(const Source: String; const Destination: Pointer);
 function FromASCIIZ(const Source: Pointer): String;
 procedure ConcatASCIIZ(const Destination, Source: Pointer);
-function LenASCIIZ(const Source: Pointer): Integer;
+function LenASCIIZ(const Source: Pointer): Longint;
 function PosASCIIZ(const SubString, Source: Pointer): Pointer;
-function CompLASCIIZ(const Str1, Str2: Pointer; MaxLen: Word): Integer;
+function CompLASCIIZ(const Str1, Str2: Pointer; MaxLen: Longint): Longint;
 
 function AddressToStr(const Address: TAddress): String;
 function AddressToStrPointless(const Address: TAddress): String;
@@ -410,8 +424,8 @@ procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; v
 procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longint; var DateTime: TMessageBaseDateTime);
 function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
 procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
-procedure UnixDateTimeToMessageBaseDateTime(SecsPast: LongInt; var DateTime: TMessageBaseDateTime);
-procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: Longint);
+procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMessageBaseDateTime);
+procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: QWord);
 procedure MessageBaseDateTimeToMSGDateTime(const DT: TMessageBaseDateTime; var L: Longint);
 procedure MSGDateTimeToMessageBaseDateTime(const A: Longint; var DT: TMessageBaseDateTime);
 function MessageBaseDateTimeCompare(const First, Second: TMessageBaseDateTime): Integer;
@@ -507,7 +521,7 @@ destructor TMessageBaseStream.Done;
 
 procedure TMessageBaseStream.CopyFrom(var S: TMessageBaseStream; Count: Longint);
  var
-  N: Word;
+  N: Longint;
   Buffer: Array[0..1023] Of Byte;
  begin
   while Count > 0 do
@@ -525,12 +539,12 @@ procedure TMessageBaseStream.CopyFrom(var S: TMessageBaseStream; Count: Longint)
    end;
  end;
 
-procedure TMessageBaseStream.Read(var Buf; Count: Word);
+procedure TMessageBaseStream.Read(var Buf; Count: Longint);
  begin
   Abstract;
  end;
 
-procedure TMessageBaseStream.Write(var Buf; Count: Word);
+procedure TMessageBaseStream.Write(var Buf; Count: Longint);
  begin
   Abstract;
  end;
@@ -673,12 +687,7 @@ function LongToStr(const Number: Longint): String;
 
 function StrToNumber(const S: String): Boolean;
  var
-  I: Longint;
-{$IFDEF VIRTUALPASCAL}
-  C: Longint;
-{$ELSE}
-  C: Integer;
-{$ENDIF}
+  I, C: Longint;
  begin
   Val(S, I, C);
 
@@ -687,11 +696,7 @@ function StrToNumber(const S: String): Boolean;
 
 function StrToInteger(const S: String; var I: System.Integer): Boolean;
  var
-{$IFDEF VIRTUALPASCAL}
   C: Longint;
-{$ELSE}
-  C: Integer;
-{$ENDIF}
  begin
   if S = '' then
    begin
@@ -709,18 +714,14 @@ function StrToInteger(const S: String; var I: System.Integer): Boolean;
 
 procedure StrToWord(const S: String; var I: Word);
  var
-{$IFDEF VIRTUALPASCAL}
   C: Longint;
-{$ELSE}
-  C: Integer;
-{$ENDIF}
  begin
   Val(S, I, C);
  end;
 
 function ExtractWord(N: Byte; const S: String; WordDelims: TCharSet): String;
  var
-  I: Word;
+  I: Longint;
   Count, Len: Byte;
   SLen: Byte absolute S;
  begin
@@ -794,7 +795,7 @@ procedure ConcatASCIIZ(const Destination, Source: Pointer);
   StrCat(Destination, Source);
  end;
 
-function LenASCIIZ(const Source: Pointer): Integer;
+function LenASCIIZ(const Source: Pointer): Longint;
  begin
   LenASCIIZ:=StrLen(Source);
  end;
@@ -804,7 +805,7 @@ function PosASCIIZ(const SubString, Source: Pointer): Pointer;
   PosASCIIZ:=StrPos(Source, SubString);
  end;
 
-function CompLASCIIZ(const Str1, Str2: Pointer; MaxLen: Word): Integer;
+function CompLASCIIZ(const Str1, Str2: Pointer; MaxLen: Longint): Longint;
  begin
   CompLASCIIZ:=StrLComp(Str1, Str2, MaxLen);
  end;
@@ -1052,9 +1053,9 @@ procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
   Day:=YDay;
  end;
 
-procedure UnixDateTimeToMessageBaseDateTime(SecsPast: LongInt; var DateTime: TMessageBaseDateTime);
+procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMessageBaseDateTime);
  var
-  DateNum: LongInt;
+  DateNum: QWord;
   Year, Month, Day: Word;
  begin
   Datenum:=(SecsPast div 86400) + c1970;
@@ -1072,9 +1073,9 @@ procedure UnixDateTimeToMessageBaseDateTime(SecsPast: LongInt; var DateTime: TMe
   DateTime.Sec:=SecsPast mod 60;
  end;
 
-procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: Longint);
+procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: QWord);
  var
-  DaysPast: LongInt;
+  DaysPast: Longint;
  begin
   DaysPast:=GregorianToJulian(DateTime) - c1970;
   SecsPast:=DaysPast * 86400;
@@ -1130,9 +1131,9 @@ function LongintToHex(const Stamp: Longint): String;
 
 function GenerateMSGID: String;
  const
-  OldMSGID: Longint = $00000000;
+  OldMSGID: QWord = 0;
  var
-  Stamp: Longint;
+  Stamp: QWord;
   {$IFNDEF DELPHI}
   Dow,
   {$ENDIF}
@@ -1152,25 +1153,29 @@ function GenerateMSGID: String;
     Dos.GetTime(Hour, Min, Sec, Sec100);
    {$ENDIF}
 
-   Stamp:=Longint(Year + 10) * 355 * 24 * 60 * 60;
-   Stamp:=Stamp + Longint(Month) * 30 * 24 * 60 * 60;
-   Stamp:=Stamp + Longint(Day) * 24 * 60 * 60;
-   Stamp:=Stamp + Longint(Hour) * 60 * 60;
-   Stamp:=Stamp + Longint(Min) * 60;
-   Stamp:=Stamp + Longint(Sec);
+   Stamp:=QWord(Year + 10) * 355 * 24 * 60 * 60;
+   Stamp:=Stamp + QWord(Month) * 30 * 24 * 60 * 60;
+   Stamp:=Stamp + QWord(Day) * 24 * 60 * 60;
+   Stamp:=Stamp + QWord(Hour) * 60 * 60;
+   Stamp:=Stamp + QWord(Min) * 60;
+   Stamp:=Stamp + QWord(Sec);
    Stamp:=(Stamp shl 7) or (Sec100 and $7F);
   until OldMSGID <> Stamp;
 
   OldMSGID:=Stamp;
 
+  {$IFDEF FPC}
+  GenerateMSGID:=IntToHex(Stamp, 8);
+  {$ELSE}
   GenerateMSGID:=LongintToHex(Stamp);
+  {$ENDIF}
  end;
 
 function GenerateUnixTimeMSGID: String;
  const
-  OldMSGID: Longint = $00000000;
+  OldMSGID: QWord = 0;
  var
-  MSGID: Longint;
+  MSGID: QWord;
   DT: TMessageBaseDateTime;
  begin
   repeat
@@ -1181,7 +1186,11 @@ function GenerateUnixTimeMSGID: String;
 
   OldMSGID:=MSGID;
 
+  {$IFDEF FPC}
+  GenerateUnixTimeMSGID:=IntToHex(MSGID, 8);
+  {$ELSE}
   GenerateUnixTimeMSGID:=LongintToHex(MSGID);
+  {$ENDIF}
  end;
 
 const
