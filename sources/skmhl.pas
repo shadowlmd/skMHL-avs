@@ -222,6 +222,7 @@ unit skMHL;
 {$ENDIF}
 
 {$IFDEF FPC}
+ {$MODE TP}
  {$WARNINGS OFF}
 {$ENDIF}
 

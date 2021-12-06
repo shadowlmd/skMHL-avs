@@ -112,7 +112,7 @@ type
  end;
 
  TSquishMessageHeader = packed record
-  Attr: LongInt;
+  Attr: Longint;
   MsgFrom: array[1..36] of Char;
   MsgTo: array[1..36] of Char;
   Subj: array[1..72] of Char;
