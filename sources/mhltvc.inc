@@ -29,9 +29,9 @@ constructor TMessageBaseFileStream.Init;
    Fail;
   end;
 
-{
+  {$IFNDEF FPC}
   BMode:=(BMode and not $F0) or (AMode and $FF00 div $100);
-}
+  {$ENDIF}
 
   inherited Init(AFileName, AMode);
 
