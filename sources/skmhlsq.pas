@@ -287,7 +287,7 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
      MaxMsg:=SquishMaxMsg;
      KeepDays:=SquishKeepDays;
 }
-     SqHdrSize:=SizeOf(SquishMessageHeader);
+     SqHdrSize:=SizeOf(TSquishFrame);
 
      FillChar(Rsvd2, SizeOf(Rsvd2), 0);
     end;
