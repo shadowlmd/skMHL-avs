@@ -17,6 +17,7 @@
 {$ELSE}
  {$B-}
 {$ENDIF}
+
 unit skMHLsq;
 
 {$IFDEF DELPHI}
@@ -282,8 +283,10 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
      LastFree:=0;
 
      EndFrame:=SizeOf(SquishBaseHeader);
+{
      MaxMsg:=SquishMaxMsg;
      KeepDays:=SquishKeepDays;
+}
      SqHdrSize:=SizeOf(SquishMessageHeader);
 
      FillChar(Rsvd2, SizeOf(Rsvd2), 0);

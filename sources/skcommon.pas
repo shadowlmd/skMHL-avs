@@ -12,16 +12,14 @@
 ===============================================================================
 }
 
-{$IFNDEF FPC}
+{$IFDEF FPC}
+ {$MODE TP}
+{$ELSE}
  {$Q-,I-,F+,X+,R-}
  {&AlignRec-,Use32-}
 {$ENDIF}
-unit skCommon;
 
-{$IFDEF FPC}
- {$MODE TP}
- {$WARNINGS OFF}
-{$ENDIF}
+unit skCommon;
 
 interface
 
@@ -89,57 +87,57 @@ type
   Zone, Net, Node, Point: System.Word;
  end;
 
- TSquishMessageReplies = array[1..9] of LongInt;
+ TSquishMessageReplies = array[1..9] of Longword;
 
  TSquishBaseHeader = packed record
   Len: System.Word;
   Rsvd1: System.Word;
-  NumMsg: Longint;
-  HighMsg: Longint;
-  SkipMsg: Longint;
-  HighWater: Longint;
-  UID: Longint;
+  NumMsg: Longword;
+  HighMsg: Longword;
+  SkipMsg: Longword;
+  HighWater: Longword;
+  UID: Longword;
   Base: array[1..80] of Char;
-  FirstFrame: Longint;
-  LastFrame: Longint;
-  FirstFree: Longint;
-  LastFree: Longint;
-  EndFrame: Longint;
-  MaxMsg: Longint;
+  FirstFrame: Longword;
+  LastFrame: Longword;
+  FirstFree: Longword;
+  LastFree: Longword;
+  EndFrame: Longword;
+  MaxMsg: Longword;
   KeepDays: System.Word;
   SqHdrSize: System.Word;
   Rsvd2: array[1..124] of Byte;
  end;
 
  TSquishMessageHeader = packed record
-  Attr: Longint;
+  Attr: Longword;
   MsgFrom: array[1..36] of Char;
   MsgTo: array[1..36] of Char;
   Subj: array[1..72] of Char;
   Orig: TSquishAddress;
   Dest: TSquishAddress;
-  DateWritten: Longint;
-  DateArrived: Longint;
-  UTCoffset: System.Word;
-  ReplyTo: Longint;
+  DateWritten: Longword;
+  DateArrived: Longword;
+  UTCoffset: System.Integer;
+  ReplyTo: Longword;
   Replies: TSquishMessageReplies;
-  UID: Longint;
+  UID: Longword;
   AzDate: array[1..20] of Char;
  end;
 
  TSquishIndex = packed record
-  Offset: Longint;
-  Number: Longint;
-  Hash: Longint;
+  Offset: Longword;
+  Number: Longword;
+  Hash: Longword;
  end;
 
  TSquishFrame = packed record
   Id: Longword;
-  NextFrame: Longint;
-  PrevFrame: Longint;
-  FrameLength: Longint;
-  MsgLength: Longint;
-  ControlLength: Longint;
+  NextFrame: Longword;
+  PrevFrame: Longword;
+  FrameLength: Longword;
+  MsgLength: Longword;
+  ControlLength: Longword;
   FrameType: System.Word;
   Rsvd: System.Word;
  end;
@@ -395,7 +393,6 @@ function RenameFile(const OldFilename, NewFilename: String): Boolean;
 function LongToStr(const Number: Longint): String;
 function StrToInteger(const S: String; var I: System.Integer): Boolean;
 procedure StrToWord(const S: String; var I: Word);
-function StrToNumber(const S: String): Boolean;
 function ExtractWord(N: Byte; const S: String; WordDelims: TCharSet): String;
 
 procedure ToASCIIZ(const Source: String; const Destination: Pointer);
@@ -420,8 +417,8 @@ procedure ClearMessageBaseDateTime(var DateTime: TMessageBaseDateTime);
 function IsRealMessageBaseDateTime(var DateTime: TMessageBaseDateTime): Boolean;
 function IsValidMessageBaseDateTime(var DateTime: TMessageBaseDateTime): Boolean;
 procedure GetCurrentMessageBaseDateTime(var DateTime: TMessageBaseDateTime);
-procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longint);
-procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longint; var DateTime: TMessageBaseDateTime);
+procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longword);
+procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longword; var DateTime: TMessageBaseDateTime);
 function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
 procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
 procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMessageBaseDateTime);
@@ -685,15 +682,6 @@ function LongToStr(const Number: Longint): String;
   LongToStr:=S;
  end;
 
-function StrToNumber(const S: String): Boolean;
- var
-  I, C: Longint;
- begin
-  Val(S, I, C);
-
-  StrToNumber:=C = 0;
- end;
-
 function StrToInteger(const S: String; var I: System.Integer): Boolean;
  var
   C: Longint;
@@ -776,9 +764,13 @@ function FromASCIIZ(const Source: Pointer): String;
     Move(Source^, S[1], SizeOf(String) - 1);
 
     {$IFDEF DELPHI}
-    SetLength(S, 255);
+    SetLength(S, SizeOf(String) - 1);
+    {$ELSE}
+    {$IFDEF FPC}
+    SetLength(S, SizeOf(String) - 1);
     {$ELSE}
     S[0]:=#255;
+    {$ENDIF}
     {$ENDIF}
 
     FromASCIIZ:=S;
@@ -981,7 +973,7 @@ procedure GetCurrentMessageBaseDateTime(var DateTime: TMessageBaseDateTime);
   DateTime.Sec100:=Sec100;
  end;
 
-procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longint);
+procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longword);
  var
   DT: TDosDateTime absolute DosDateTime;
  begin
@@ -992,7 +984,7 @@ procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; v
    end;
  end;
 
-procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longint; var DateTime: TMessageBaseDateTime);
+procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longword; var DateTime: TMessageBaseDateTime);
  var
   DT: TDosDateTime absolute DosDateTime;
  begin
@@ -1197,7 +1189,7 @@ const
 {$IFDEF DELPHI}
  CRC32_Table: array[0..255] of ULong = (
 {$ELSE}
- CRC32_Table: array[0..255] of Longint = (
+ CRC32_Table: array[0..255] of Longword = (
 {$ENDIF}
    $00000000, $77073096, $ee0e612c, $990951ba, $076dc419, $706af48f, $e963a535, $9e6495a3,
    $0edb8832, $79dcb8a4, $e0d5e91e, $97d2d988, $09b64c2b, $7eb17cbd, $e7b82d07, $90bf1d91,

@@ -223,7 +223,6 @@ unit skMHL;
 
 {$IFDEF FPC}
  {$MODE TP}
- {$WARNINGS OFF}
 {$ENDIF}
 
 interface
