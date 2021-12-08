@@ -215,7 +215,7 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
      Break;
     end;
 
-   if SquishIndexMemory then
+   if SquishMemoryIndex then
     begin
      IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
      IndexLinkFile^.Seek(0);
@@ -286,7 +286,7 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
      Break;
     end;
 
-   if SquishIndexMemory then
+   if SquishMemoryIndex then
     begin
      IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
      IndexLink:=IndexLinkMemory;
