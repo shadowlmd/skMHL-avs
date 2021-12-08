@@ -127,6 +127,8 @@ type
   SquishIndexPos: Longint;
   DataLink: PMessageBaseStream;
   IndexLink: PMessageBaseStream;
+  IndexLinkFile: PMessageBaseStream;
+  IndexLinkMemory: PMessageBaseStream;
   procedure GetIndex(const Pos: Longint; var Index: TSquishIndex);
   procedure SetIndex(const Pos: Longint; var Index: TSquishIndex);
   function CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint; const Nearest: Boolean): Boolean;
@@ -154,6 +156,8 @@ constructor TSquishMessageBase.Init;
 
   DataLink:=nil;
   IndexLink:=nil;
+  IndexLinkFile:=nil;
+  IndexLinkMemory:=nil;
  end;
 
 destructor TSquishMessageBase.Done;
@@ -188,6 +192,8 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
 
   DataLink:=nil;
   IndexLink:=nil;
+  IndexLinkFile:=nil;
+  IndexLinkMemory:=nil;
 
   repeat
    DataLink:=CreateMessageBaseFileStream(GetBasePath + esSQD, smOpen or smDenyWrite);
@@ -199,13 +205,22 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
      Break;
     end;
 
-   IndexLink:=CreateMessageBaseFileStream(GetBasePath + esSQI, smOpen or smDenyWrite);
+   IndexLinkFile:=CreateMessageBaseFileStream(GetBasePath + esSQI, smOpen or smDenyWrite);
+   IndexLink:=IndexLinkFile;
 
    if IndexLink^.Status <> smOk then
     begin
      SetStatus(smbCantOpenSQI);
 
      Break;
+    end;
+
+   if SquishIndexMemory then
+    begin
+     IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
+     IndexLinkFile^.Seek(0);
+     IndexLinkMemory^.CopyFrom(IndexLinkFile^, IndexLinkFile^.GetSize);
+     IndexLink:=IndexLinkMemory;
     end;
 
    DataLink^.Read(SquishBaseHeader, SizeOf(SquishBaseHeader));
@@ -219,11 +234,16 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
   if DataLink <> nil then
    Dispose(DataLink, Done);
 
-  if IndexLink <> nil then
-   Dispose(IndexLink, Done);
+  if IndexLinkFile <> nil then
+   Dispose(IndexLinkFile, Done);
+
+  if IndexLinkMemory <> nil then
+   Dispose(IndexLinkMemory, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
+  IndexLinkFile:=nil;
+  IndexLinkMemory:=nil;
 
   SetBasePath('');
  end;
@@ -244,6 +264,8 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
   repeat
    DataLink:=nil;
    IndexLink:=nil;
+   IndexLinkFile:=nil;
+   IndexLinkMemory:=nil;
 
    DataLink:=CreateMessageBaseFileStream(GetBasePath + esSQD, smCreate or smDenyWrite);
 
@@ -254,13 +276,20 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
      Break;
     end;
 
-   IndexLink:=CreateMessageBaseFileStream(GetBasePath + esSQI, smCreate or smDenyWrite);
+   IndexLinkFile:=CreateMessageBaseFileStream(GetBasePath + esSQI, smCreate or smDenyWrite);
+   IndexLink:=IndexLinkFile;
 
    if IndexLink^.Status <> smOk then
     begin
      SetStatus(smbCantCreateSQI);
 
      Break;
+    end;
+
+   if SquishIndexMemory then
+    begin
+     IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
+     IndexLink:=IndexLinkMemory;
     end;
 
    with SquishBaseHeader do
@@ -303,11 +332,16 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
   if DataLink <> nil then
    Dispose(DataLink, Done);
 
-  if IndexLink <> nil then
-   Dispose(IndexLink, Done);
+  if IndexLinkFile <> nil then
+   Dispose(IndexLinkFile, Done);
+
+  if IndexLinkMemory <> nil then
+   Dispose(IndexLinkMemory, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
+  IndexLinkFile:=nil;
+  IndexLinkMemory:=nil;
 
   SetBasePath('');
  end;
@@ -328,11 +362,22 @@ procedure TSquishMessageBase.Close;
 
   SaveBaseHeader;
 
+  if (IndexLink <> nil) and (IndexLink = IndexLinkMemory) then
+   begin
+    IndexLinkMemory^.Seek(0);
+    IndexLinkFile^.Seek(0);
+    IndexLinkFile^.CopyFrom(IndexLinkMemory^, IndexLinkMemory^.GetSize);
+    IndexLinkFile^.Truncate;
+    Dispose(IndexLinkMemory, Done);
+   end;
+
   Dispose(DataLink, Done);
-  Dispose(IndexLink, Done);
+  Dispose(IndexLinkFile, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
+  IndexLinkFile:=nil;
+  IndexLinkMemory:=nil;
  end;
 
 procedure TSquishMessageBase.PreparePath(const Path: String);
@@ -487,24 +532,30 @@ function TSquishMessageBase.OpenMessage: Boolean;
    begin
     LineCh[1]:=CIB^[K];
 
-    if (LineCh[1] = #1) and (K <> 1) then
-     begin
-      if EmptyCIB and (K <> CIBLength) then
-       EmptyCIB := False;
+    if LineCh[1] = #1 then
+     if EmptyCIB then
+      begin
+       if K <> CIBLength then
+        begin
+         ToASCIIZ('', Line);
+         EmptyCIB := False;
+        end;
+      end
+     else
+      begin
+       if LenASCIIZ(Line) > 1 then
+        begin
+         LineCh[1]:=#13;
 
-      if not EmptyCIB then
-       begin
-        LineCh[1]:=#13;
+         GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
 
-        GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
+         GetMessageTextStream^.Write(LineCh[1], 1);
 
-        GetMessageTextStream^.Write(LineCh[1], 1);
+         LineCh[1]:=#1;
+        end;
 
-        LineCh[1]:=#1;
-
-        ToASCIIZ('', Line);
-       end;
-     end;
+       ToASCIIZ('', Line);
+      end;
 
     ConcatASCIIZ(Line, @LineCh);
    end;
@@ -588,24 +639,30 @@ function TSquishMessageBase.OpenMessageHeader: Boolean;
    begin
     LineCh[1]:=CIB^[K];
 
-    if (LineCh[1] = #1) and (K <> 1) then
-     begin
-      if EmptyCIB and (K <> CIBLength) then
-       EmptyCIB := False;
+    if LineCh[1] = #1 then
+     if EmptyCIB then
+      begin
+       if K <> CIBLength then
+        begin
+         ToASCIIZ('', Line);
+         EmptyCIB := False;
+        end;
+      end
+     else
+      begin
+       if LenASCIIZ(Line) > 1 then
+        begin
+         LineCh[1]:=#13;
 
-      if not EmptyCIB then
-       begin
-        LineCh[1]:=#13;
+         GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
 
-        GetMessageTextStream^.Write(Line^, LenASCIIZ(Line));
+         GetMessageTextStream^.Write(LineCh[1], 1);
 
-        GetMessageTextStream^.Write(LineCh[1], 1);
+         LineCh[1]:=#1;
+        end;
 
-        LineCh[1]:=#1;
-
-        ToASCIIZ('', Line);
-       end;
-     end;
+       ToASCIIZ('', Line);
+      end;
 
     ConcatASCIIZ(Line, @LineCh);
    end;
