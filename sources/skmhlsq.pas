@@ -531,7 +531,7 @@ function TSquishMessageBase.OpenMessage: Boolean;
 
   CIB^[CIBLength]:=#1;
 
-  EmptyCIB := True;
+  EmptyCIB:=True;
 
   ToASCIIZ('', Line);
 
@@ -545,7 +545,7 @@ function TSquishMessageBase.OpenMessage: Boolean;
        if K <> CIBLength then
         begin
          ToASCIIZ('', Line);
-         EmptyCIB := False;
+         EmptyCIB:=False;
         end;
       end
      else
@@ -638,7 +638,7 @@ function TSquishMessageBase.OpenMessageHeader: Boolean;
 
   CIB^[CIBLength]:=#1;
 
-  EmptyCIB := True;
+  EmptyCIB:=True;
 
   ToASCIIZ('', Line);
 
@@ -652,7 +652,7 @@ function TSquishMessageBase.OpenMessageHeader: Boolean;
        if K <> CIBLength then
         begin
          ToASCIIZ('', Line);
-         EmptyCIB := False;
+         EmptyCIB:=False;
         end;
       end
      else
