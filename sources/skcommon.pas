@@ -228,9 +228,6 @@ const
  MaxLineSize    : Longint = $4000;
  MaxMessageSize : Longint = $10000;
 
-{ Enable or disable Squish memory index }
- SquishMemoryIndex : Boolean = False;
-
 { errors }
 
 const

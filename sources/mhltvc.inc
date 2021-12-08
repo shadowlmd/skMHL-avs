@@ -280,6 +280,10 @@ procedure TMessageBaseRamStream.Flush;
  begin
  end;
 
+procedure TMessageBaseRamStream.Reset;
+ begin
+ end;
+
 procedure TMessageBaseRamStream.SetSize(NewSize: Longint);
  var
   NextBlockSize: Longint;

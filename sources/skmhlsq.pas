@@ -58,6 +58,7 @@ const
 
  SquishMaxMsg           : Longint = $FFFF;
  SquishKeepDays         : Longint = $7FFF;
+ SquishMemoryIndex      : Boolean = False;
 
 type
  PControlInformationBuffer = ^TControlInformationBuffer;
@@ -129,6 +130,7 @@ type
   IndexLink: PMessageBaseStream;
   IndexLinkFile: PMessageBaseStream;
   IndexLinkMemory: PMessageBaseStream;
+  IndexModified: Boolean;
   procedure GetIndex(const Pos: Longint; var Index: TSquishIndex);
   procedure SetIndex(const Pos: Longint; var Index: TSquishIndex);
   function CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint; const Nearest: Boolean): Boolean;
@@ -221,6 +223,7 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
      IndexLinkFile^.Seek(0);
      IndexLinkMemory^.CopyFrom(IndexLinkFile^, IndexLinkFile^.GetSize);
      IndexLink:=IndexLinkMemory;
+     IndexModified:=False;
     end;
 
    DataLink^.Read(SquishBaseHeader, SizeOf(SquishBaseHeader));
@@ -290,6 +293,7 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
     begin
      IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
      IndexLink:=IndexLinkMemory;
+     IndexModified:=False;
     end;
 
    with SquishBaseHeader do
@@ -364,10 +368,13 @@ procedure TSquishMessageBase.Close;
 
   if (IndexLink <> nil) and (IndexLink = IndexLinkMemory) then
    begin
-    IndexLinkMemory^.Seek(0);
-    IndexLinkFile^.Seek(0);
-    IndexLinkFile^.CopyFrom(IndexLinkMemory^, IndexLinkMemory^.GetSize);
-    IndexLinkFile^.Truncate;
+    if IndexModified then
+     begin
+      IndexLinkMemory^.Seek(0);
+      IndexLinkFile^.Seek(0);
+      IndexLinkFile^.CopyFrom(IndexLinkMemory^, IndexLinkMemory^.GetSize);
+      IndexLinkFile^.Truncate;
+     end;
     Dispose(IndexLinkMemory, Done);
    end;
 
@@ -1073,6 +1080,8 @@ function TSquishMessageBase.KillMessage: Boolean;
 
   Dec(SquishIndexPos, SizeOf(SquishIndex));
 
+  IndexModified:=True;
+
   KillMessage:=True;
  end;
 
@@ -1223,6 +1232,8 @@ procedure TSquishMessageBase.SetIndex(const Pos: Longint; var Index: TSquishInde
   IndexLink^.Seek(Pos);
 
   IndexLink^.Write(Index, SizeOf(Index));
+
+  IndexModified:=True;
  end;
 
 function TSquishMessageBase.CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint;

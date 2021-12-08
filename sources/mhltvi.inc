@@ -78,6 +78,7 @@ type
   procedure Write(var Buf; Count: Longint); virtual;
   procedure CopyFrom(var S: TMessageBaseStream; Count: Longint); virtual;
   procedure Flush; virtual;
+  procedure Reset; virtual;
  private
   procedure SetSize(NewSize: Longint);
   procedure GetPosEx(Position: Longint; var Block: PMessageBaseRamBlock; var Offset, Remain: Longint);
