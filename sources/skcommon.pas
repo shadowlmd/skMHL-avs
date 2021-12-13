@@ -431,7 +431,6 @@ procedure MonthStringToMonthNumber(S: String; var Month: Word);
 function MonthNumberToMonthString(const Month: Word): String;
 
 function GenerateMSGID: String;
-function GenerateUnixTimeMSGID: String;
 
 function UpdateCRC32(Octet: Byte; Crc: Longint): Longint;
 function StringCRC32(const S: String; Crc: Longint): Longint;
@@ -1123,66 +1122,19 @@ function LongintToHex(const Stamp: Longint): String;
 
 function GenerateMSGID: String;
  const
-  OldMSGID: QWord = 0;
+  OldMSGID: Longint = 0;
  var
-  Stamp: QWord;
-  {$IFNDEF DELPHI}
-  Dow,
-  {$ENDIF}
-  Year, Month, Day, Hour, Min, Sec, Sec100:
-  {$IFDEF VIRTUALPASCAL}
-   Longint;
-  {$ELSE}
-   Word;
-  {$ENDIF}
+  DateTime: TMessageBaseDateTime;
+  Stamp: Longint;
  begin
   repeat
-   {$IFDEF DELPHI}
-    DecodeDate(Date, Year, Month, Day);
-    DecodeTime(Time, Hour, Min, Sec, Sec100);
-   {$ELSE}
-    Dos.GetDate(Year, Month, Day, Dow);
-    Dos.GetTime(Hour, Min, Sec, Sec100);
-   {$ENDIF}
-
-   Stamp:=QWord(Year + 10) * 355 * 24 * 60 * 60;
-   Stamp:=Stamp + QWord(Month) * 30 * 24 * 60 * 60;
-   Stamp:=Stamp + QWord(Day) * 24 * 60 * 60;
-   Stamp:=Stamp + QWord(Hour) * 60 * 60;
-   Stamp:=Stamp + QWord(Min) * 60;
-   Stamp:=Stamp + QWord(Sec);
-   Stamp:=(Stamp shl 7) or (Sec100 and $7F);
+   GetCurrentMessageBaseDateTime(DateTime);
+   MessageBaseDateTimeToDosDateTime(DateTime, Stamp);
   until OldMSGID <> Stamp;
 
   OldMSGID:=Stamp;
 
-  {$IFDEF FPC}
-  GenerateMSGID:=IntToHex(Stamp, 8);
-  {$ELSE}
   GenerateMSGID:=LongintToHex(Stamp);
-  {$ENDIF}
- end;
-
-function GenerateUnixTimeMSGID: String;
- const
-  OldMSGID: QWord = 0;
- var
-  MSGID: QWord;
-  DT: TMessageBaseDateTime;
- begin
-  repeat
-   GetCurrentMessageBaseDateTime(DT);
-
-   MessageBaseDateTimeToUnixDateTime(DT, MSGID);
-  until MSGID <> OldMSGID;
-
-  OldMSGID:=MSGID;
-
-  {$IFDEF FPC}
-  GenerateUnixTimeMSGID:=IntToHex(MSGID, 8);
-  {$ELSE}
-  GenerateUnixTimeMSGID:=LongintToHex(MSGID);
-  {$ENDIF}
  end;
 
 const
