@@ -45,20 +45,20 @@ uses
 {$ENDIF}
 
 function ParsePath(sPath: String): String;
-begin
-{$IFDEF UNIX}
- if ((sPath[1] = '~') and (sPath[2] = Slash)) then
  begin
-  Delete(sPath, 1, 2);
-  sPath := IncludeTrailingPathDelimiter(GetUserDir) + sPath;
- end else
- if ((sPath[1] = '.') and (sPath[2] = Slash)) then
- begin
-  Delete(sPath, 1, 2);
-  sPath := IncludeTrailingPathDelimiter(GetCurrentDir) + sPath;
+ {$IFDEF UNIX}
+  if ((sPath[1] = '~') and (sPath[2] = Slash)) then
+   begin
+    Delete(sPath, 1, 2);
+    sPath:=IncludeTrailingPathDelimiter(GetUserDir) + sPath;
+   end else
+  if ((sPath[1] = '.') and (sPath[2] = Slash)) then
+   begin
+    Delete(sPath, 1, 2);
+    sPath:=IncludeTrailingPathDelimiter(GetCurrentDir) + sPath;
+   end;
+ {$ENDIF}
+  ParsePath:=sPath;
  end;
-{$ENDIF}
- ParsePath := sPath;
-end;
 
 end.
