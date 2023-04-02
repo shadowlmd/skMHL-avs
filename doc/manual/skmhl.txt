@@ -1139,12 +1139,12 @@
 
    конвеpтиpует TMBDT в DosDateTime и обpатно.
 
-   function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
-   procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Integer);
+   function GregorianToJulian(DateTime: TMessageBaseDateTime): Longint;
+   procedure JulianToGregorian(JulianDN: Longint; var Year, Month, Day: Integer);
 
    в Юлианский календаpь и обpатно
 
-   procedure UnixDateTimeToMessageBaseDateTime(SecsPast: LongInt; var DateTime: TMessageBaseDateTime);
+   procedure UnixDateTimeToMessageBaseDateTime(SecsPast: Longint; var DateTime: TMessageBaseDateTime);
    procedure MessageBaseDateTimeToUnixDateTime(var DateTime: TMessageBaseDateTime; var SecsPast: Longint);
 
    в юникстайм и обpатно.
