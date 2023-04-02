@@ -421,8 +421,8 @@ procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; v
 procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longword; var DateTime: TMessageBaseDateTime);
 function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
 procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
-procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMessageBaseDateTime);
-procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: QWord);
+procedure UnixDateTimeToMessageBaseDateTime(SecsPast: Longword; var DateTime: TMessageBaseDateTime);
+procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: Longword);
 procedure MessageBaseDateTimeToMSGDateTime(const DT: TMessageBaseDateTime; var L: Longint);
 procedure MSGDateTimeToMessageBaseDateTime(const A: Longint; var DT: TMessageBaseDateTime);
 function MessageBaseDateTimeCompare(const First, Second: TMessageBaseDateTime): Integer;
@@ -1044,9 +1044,9 @@ procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
   Day:=YDay;
  end;
 
-procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMessageBaseDateTime);
+procedure UnixDateTimeToMessageBaseDateTime(SecsPast: Longword; var DateTime: TMessageBaseDateTime);
  var
-  DateNum: QWord;
+  DateNum: Longword;
   Year, Month, Day: Word;
  begin
   Datenum:=(SecsPast div 86400) + c1970;
@@ -1064,9 +1064,9 @@ procedure UnixDateTimeToMessageBaseDateTime(SecsPast: QWord; var DateTime: TMess
   DateTime.Sec:=SecsPast mod 60;
  end;
 
-procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: QWord);
+procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: Longword);
  var
-  DaysPast: Longint;
+  DaysPast: Longword;
  begin
   DaysPast:=GregorianToJulian(DateTime) - c1970;
   SecsPast:=DaysPast * 86400;
