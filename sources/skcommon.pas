@@ -419,8 +419,8 @@ function IsValidMessageBaseDateTime(var DateTime: TMessageBaseDateTime): Boolean
 procedure GetCurrentMessageBaseDateTime(var DateTime: TMessageBaseDateTime);
 procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longword);
 procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longword; var DateTime: TMessageBaseDateTime);
-function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
-procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
+function GregorianToJulian(DateTime: TMessageBaseDateTime): Longint;
+procedure JulianToGregorian(JulianDN: Longint; var Year, Month, Day: Word);
 procedure UnixDateTimeToMessageBaseDateTime(SecsPast: Longword; var DateTime: TMessageBaseDateTime);
 procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime; var SecsPast: Longword);
 procedure MessageBaseDateTimeToMSGDateTime(const DT: TMessageBaseDateTime; var L: Longint);
@@ -998,11 +998,11 @@ procedure DosDateTimeToMessageBaseDateTime(var DosDateTime: Longword; var DateTi
    end;
  end;
 
-function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
+function GregorianToJulian(DateTime: TMessageBaseDateTime): Longint;
  var
-  Century: LongInt;
-  XYear: LongInt;
-  Month: LongInt;
+  Century: Longint;
+  XYear: Longint;
+  Month: Longint;
  begin
   Month:=DateTime.Month;
   if Month <= 2 then
@@ -1018,9 +1018,9 @@ function GregorianToJulian(DateTime: TMessageBaseDateTime): LongInt;
   GregorianToJulian:=((((Month * 153) + 2) div 5) + DateTime.Day) + D2 + XYear + Century;
  end;
 
-procedure JulianToGregorian(JulianDN: LongInt; var Year, Month, Day: Word);
+procedure JulianToGregorian(JulianDN: Longint; var Year, Month, Day: Word);
  var
-  Temp, XYear: LongInt;
+  Temp, XYear: Longint;
   YYear, YMonth, YDay: Integer;
  begin
   Temp:=(((JulianDN - D2) shl 2) - 1);
@@ -1070,7 +1070,7 @@ procedure MessageBaseDateTimeToUnixDateTime(const DateTime: TMessageBaseDateTime
  begin
   DaysPast:=GregorianToJulian(DateTime) - c1970;
   SecsPast:=DaysPast * 86400;
-  SecsPast:=SecsPast + (LongInt(DateTime.Hour) * 3600) + (DateTime.Min * 60) + (DateTime.Sec);
+  SecsPast:=SecsPast + (Longint(DateTime.Hour) * 3600) + (DateTime.Min * 60) + (DateTime.Sec);
  end;
 
 procedure MonthStringToMonthNumber(S: String; var Month: Word);
