@@ -22,9 +22,9 @@ unit skMHLjam;
 
 interface
 uses
-     skMHL,
-     skMHLos,
-     skCommon;
+ skMHL,
+ skMHLos,
+ skCommon;
 
 const
  jamSource              = $0000;

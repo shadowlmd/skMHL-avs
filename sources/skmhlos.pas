@@ -15,95 +15,50 @@
 
 unit skMHLos;
 
- interface
+interface
 
 const
+{$IFDEF UNIX}
+ ExtMSG = '.msg';
+{$ELSE}
+ ExtMSG = '.MSG';
+{$ENDIF}
 
-     {$IFDEF UNIX}
-      Mask   = '*';
-      Slash  = '/';
-      ExtMSG = '.msg';
-     {$ELSE}
-      Mask   = '*.*';
-      Slash  = '\'  ;
-      ExtMSG = '.MSG';
-     {$ENDIF}
+ Mask   = AllFilesMask;
+ Slash  = DirectorySeparator;
 
-      Dot    = '.';
+ ejJHR  = 'jhr';
+ ejJDX  = 'jdx';
+ ejJDT  = 'jdt';
+ ejJLR  = 'jlr';
 
-      ejJHR  = 'jhr';
-      ejJDX  = 'jdx';
-      ejJDT  = 'jdt';
-      ejJLR  = 'jlr';
+ esSQD  = 'sqd';
+ esSQI  = 'sqi';
 
-      esSQD  = 'sqd';
-      esSQI  = 'sqi';
+function ParsePath(sPath: String): String;
 
-  function ParsePath (sPath    : String) : String;
- {$IFDEF FPC}
-  function CreateFile(FileName : String) : Boolean;
- {$ENDIF}
-
- implementation
+implementation
 
 {$IFDEF UNIX}
- uses
-     Dos;
+uses
+ SysUtils;
 {$ENDIF}
 
-{===========================================================================}
-function GetCurrentDir : String;
-var
-   S : String;
-   I : Byte;
+function ParsePath(sPath: String): String;
 begin
-
- S:=ParamStr(0);
- for I:=Length(S) downto 1 do
-  if (S[I] = Slash) then begin
-   S:=Copy(S, 1, I-1);
-   Break;
-  end;
-
- GetCurrentDir:=S;
-
-end;
-{===========================================================================}
-function ParsePath(sPath : String) : String;
-begin
-
 {$IFDEF UNIX}
- if ((sPath[1] = '~') and (sPath[2] = Slash)) then begin
+ if ((sPath[1] = '~') and (sPath[2] = Slash)) then
+ begin
   Delete(sPath, 1, 2);
-  sPath:=GetEnv('HOME')+Slash+sPath;
- end;
- if ((sPath[1] = '.') and (sPath[2] = Slash)) then begin
+  sPath := IncludeTrailingPathDelimiter(GetUserDir) + sPath;
+ end else
+ if ((sPath[1] = '.') and (sPath[2] = Slash)) then
+ begin
   Delete(sPath, 1, 2);
-  sPath:=GetCurrentDir+Slash+sPath;
+  sPath := IncludeTrailingPathDelimiter(GetCurrentDir) + sPath;
  end;
 {$ENDIF}
-
- ParsePath:=sPath;
-
+ ParsePath := sPath;
 end;
-{===========================================================================}
-{$IFDEF FPC}
-function CreateFile(FileName : String) : Boolean;
-var
-   F : Text;
-begin
-
- CreateFile:= false;
-
- Assign(F, FileName);
- {$I-}Rewrite(F){$I+};
- if (IOResult = 0) then begin
-  Close(F);
-  CreateFile:= true;
- end;
-
-end;
-{===========================================================================}
-{$ENDIF}
 
 end.

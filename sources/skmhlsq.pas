@@ -27,9 +27,9 @@ unit skMHLsq;
 
 interface
 uses
-     skMHL,
-     skMHLos,
-     skCommon;
+ skMHL,
+ skMHLos,
+ skCommon;
 
 const
  squishFrameID          = $AFAE4453;

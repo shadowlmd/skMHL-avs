@@ -20,11 +20,10 @@ unit skMHLvmb;
 interface
 uses
 {$IFNDEF DELPHI}
-     Objects,
+ Objects,
 {$ENDIF}
-
-     skMHL,
-     skCommon;
+ skMHL,
+ skCommon;
 
 {
  this unit is intented to work with text which may contain

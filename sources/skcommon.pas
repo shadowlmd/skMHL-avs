@@ -52,27 +52,27 @@ interface
 
 uses
 {$IFDEF DELPHI}
-     Windows,
-     SysUtils;
+ Windows,
+ SysUtils;
 {$ELSE}
 {$IFDEF VIRTUALPASCAL}
-     Objects,
-     Dos,
-     Strings,
-     vpSysLow;
+ Objects,
+ Dos,
+ Strings,
+ vpSysLow;
 {$ELSE}
 {$IFDEF FPC}
-     SysUtils,
-     Objects,
-     Dos,
-     Strings,
-     skMHLos;
+ SysUtils,
+ Objects,
+ Dos,
+ Strings,
+ skMHLos;
 {$ELSE}
-     Objects,
-     Dos,
-     Crt,
-     Strings,
-     skMHLos;
+ Objects,
+ Dos,
+ Crt,
+ Strings,
+ skMHLos;
 {$ENDIF}
 {$ENDIF}
 {$ENDIF}
@@ -618,7 +618,7 @@ function DirectoryExists(const Pathname: String): Boolean;
   Find:=CreateMessageBaseFind;
 
   if Pathname[Length(PathName)] <> Slash then
-   DirectoryExists:=Find^.StartSearch(Pathname + Slash+Mask, faAnyFile)
+   DirectoryExists:=Find^.StartSearch(Pathname + Slash + Mask, faAnyFile)
   else
    DirectoryExists:=Find^.StartSearch(Pathname + Mask, faAnyFile);
 

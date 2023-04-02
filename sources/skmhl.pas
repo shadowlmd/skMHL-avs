@@ -227,7 +227,7 @@ unit skMHL;
 
 interface
 uses
-     skCommon;
+ skCommon;
 
 const
  skMHLdllsuffix = '/DLL';

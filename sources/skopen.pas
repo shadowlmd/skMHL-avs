@@ -23,19 +23,19 @@ unit skOpen;
 
 interface
 uses
-     skMHL,
+ skMHL,
 
-    {$IFDEF MSG}
-     skMHLmsg,
-    {$ENDIF}
-    {$IFDEF JAM}
-     skMHLjam,
-    {$ENDIF}
-    {$IFDEF SQUISH}
-     skMHLsq,
-    {$ENDIF}
-     skMHLos,
-     skCommon;
+{$IFDEF MSG}
+ skMHLmsg,
+{$ENDIF}
+{$IFDEF JAM}
+ skMHLjam,
+{$ENDIF}
+{$IFDEF SQUISH}
+ skMHLsq,
+{$ENDIF}
+ skMHLos,
+ skCommon;
 
 var
  OpenStatus: Longint;

@@ -22,10 +22,9 @@ unit skMHLmsg;
 
 interface
 uses
-     skMHL,
-
-     skCommon,
-     skMHLos;
+ skMHL,
+ skMHLos,
+ skCommon;
 
 const
  MaxMapSize             = $F000;
