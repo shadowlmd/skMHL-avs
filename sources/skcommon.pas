@@ -683,6 +683,7 @@ function LongToStr(const Number: Longint): String;
 
 function StrToInteger(const S: String; var I: System.Integer): Boolean;
  var
+  V: System.Integer;
   C: Longint;
  begin
   if S = '' then
@@ -693,9 +694,16 @@ function StrToInteger(const S: String; var I: System.Integer): Boolean;
    end
   else
    begin
-    Val(S, I, C);
+    Val(S, V, C);
 
-    StrToInteger:=C = 0;
+    if C = 0 then
+     begin
+      I:=V;
+
+      StrToInteger:=True;
+     end
+    else
+     StrToInteger:=False;
    end;
  end;
 
