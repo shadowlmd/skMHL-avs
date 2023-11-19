@@ -822,10 +822,8 @@ procedure TJamMessageBase.GetToAddress(var Address: TAddress);
 
 procedure TJamMessageBase.GetFromAndToAddress(var FromAddress, ToAddress: TAddress);
  begin
-  ClearAddress(FromAddress);
-  ClearAddress(ToAddress);
-
-  inherited GetFromAndToAddress(FromAddress, ToAddress);
+  GetFromAddress(FromAddress);
+  GetToAddress(ToAddress);
  end;
 
 function TJamMessageBase.GetAttribute(Attribute: Longint): Boolean;
