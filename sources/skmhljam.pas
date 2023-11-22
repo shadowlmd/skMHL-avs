@@ -838,18 +838,6 @@ procedure TJamMessageBase.GetFromAndToAddress(var FromAddress, ToAddress: TAddre
    end;
  end;
 
-function TJamMessageBase.GetAttribute(Attribute: Longint): Boolean;
- begin
-  if not MapAttribute(Attribute) then
-   begin
-    GetAttribute:=False;
-
-    Exit;
-   end;
-
-  GetAttribute:=JamMessageHeader.JamHeader.Attr1 and Attribute <> 0;
- end;
-
 procedure TJamMessageBase.SetFromAddress(var Address: TAddress; const FreshMSGID: Boolean);
  begin
   inherited SetFromAddress(Address, FreshMSGID);
@@ -866,6 +854,18 @@ procedure TJamMessageBase.SetFromAndToAddress(var FromAddress, ToAddress: TAddre
  begin
   SetFromAddress(FromAddress, FreshMSGID);
   SetToAddress(ToAddress);
+ end;
+
+function TJamMessageBase.GetAttribute(Attribute: Longint): Boolean;
+ begin
+  if not MapAttribute(Attribute) then
+   begin
+    GetAttribute:=False;
+
+    Exit;
+   end;
+
+  GetAttribute:=JamMessageHeader.JamHeader.Attr1 and Attribute <> 0;
  end;
 
 procedure TJamMessageBase.SetAttribute(Attribute: Longint; Enable: Boolean);
