@@ -167,7 +167,6 @@ type
   function MapAttribute(var Attribute: Longint): Boolean;
   function StrCrc32(const S: String): Longint;
   procedure ResetAll;
-  procedure RepackIndex;
  end;
 
 implementation
@@ -284,9 +283,6 @@ function TJamMessageBase.Open(const Path: String): Boolean;
    HeaderLink^.Seek(0);
 
    HeaderLink^.Read(JamBaseHeader, SizeOf(JamBaseHeader));
-
-   if IndexLink^.GetSize div SizeOf(TJamIndex) <> JamBaseHeader.ActiveMsgs then
-    RepackIndex;
 
    Open:=True;
 
@@ -477,7 +473,7 @@ function TJamMessageBase.Exists(Message: Longint): Boolean;
  begin
   Exists:=False;
 
-  if (Message >= JamBaseHeader.BaseMsgNum) and (Message < JamBaseHeader.BaseMsgNum + JamBaseHeader.ActiveMsgs) then
+  if (Message >= JamBaseHeader.BaseMsgNum) and (Message <= GetHighest) then
    begin
     AJamIndexPosition:=(Message - JamBaseHeader.BaseMsgNum) * SizeOf(AJamIndex);
 
@@ -617,7 +613,8 @@ function TJamMessageBase.OpenMessage: Boolean;
     if SubFieldType = jamVia then
      PutString(#1'Via ' + S)
     else
-    if (SubFieldType = jamUnknown) and ((Copy(S, 1, 4) = 'Via ') or (Copy(S, 1, 4) = 'Recd') or (Copy(S, 1, 9) = 'Forwarded')) then
+    if (SubFieldType = jamUnknown) and ((Copy(S, 1, 4) = 'Via ') or (Copy(S, 1, 4) = 'Recd') or
+       (Copy(S, 1, 9) = 'Forwarded')) then
      PutString(#1 + S);
 
     Inc(Count);
@@ -765,7 +762,7 @@ function TJamMessageBase.CloseMessage: Boolean;
 
 function TJamMessageBase.GetHighest: Longint;
  begin
-  GetHighest:=JamBaseHeader.BaseMsgNum + JamBaseHeader.ActiveMsgs - 1;
+  GetHighest:=IndexLink^.GetSize div SizeOf(TJamIndex) + JamBaseHeader.BaseMsgNum - 1;
  end;
 
 function TJamMessageBase.GetCount: Longint;
@@ -1039,7 +1036,7 @@ function TJamMessageBase.CreateNewMessage: Boolean;
 
   Inc(JamBaseHeader.ActiveMsgs);
 
-  SetCurrent(JamBaseHeader.BaseMsgNum + GetCount - 1);
+  SetCurrent(GetHighest + 1);
 
   FillChar(JamMessageHeader, SizeOf(JamMessageHeader), 0);
   FillChar(JamInfo, SizeOf(JamInfo), 0);
@@ -1084,8 +1081,6 @@ function TJamMessageBase.KillMessage: Boolean;
   IndexLink^.Write(JamIndex, SizeOf(JamIndex));
 
   Dec(JamBaseHeader.ActiveMsgs);
-
-  RepackIndex;
 
   SetCurrent(Current - 1);
 
@@ -1308,52 +1303,6 @@ procedure TJamMessageBase.ResetAll;
   DataLink^.Reset;
   HeaderLink^.Reset;
   LastReadLink^.Reset;
- end;
-
-procedure TJamMessageBase.RepackIndex;
- var
-  Index: TJamIndex;
-  TempStream: PMessageBaseStream;
-  TempSize: Longint;
- begin
-  IndexLink^.Seek(0);
-
-  TempStream:=CreateMessageBaseMemoryStream(IndexLink^.GetSize);
-  TempSize:=IndexLink^.GetSize;
-
-  JamBaseHeader.ActiveMsgs:=0;
-
-  TempStream^.Seek(TempSize);
-  TempStream^.Truncate;
-
-  TempStream^.Seek(0);
-
-  while TempSize > 0 do
-   begin
-    IndexLink^.Read(Index, SizeOf(Index));
-
-    if Index.HdrLoc <> -1 then
-     begin
-      TempStream^.Write(Index, SizeOf(Index));
-
-      Inc(JamBaseHeader.ActiveMsgs);
-     end;
-
-    Dec(TempSize, SizeOf(Index));
-   end;
-
-  TempStream^.Truncate;
-
-  IndexLink^.Seek(0);
-  TempStream^.Seek(0);
-
-  IndexLink^.CopyFrom(TempStream^, TempStream^.GetSize);
-
-  IndexLink^.Truncate;
-
-  IndexLink^.Flush;
-
-  Dispose(TempStream, Done);
  end;
 
 end.
