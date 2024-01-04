@@ -146,23 +146,23 @@ type
   Signature: array[1..4] of Char;
   Rev: System.Word;
   Resvd: System.Word;
-  SubFieldLen: Longint;
-  TimesRead: Longint;
+  SubFieldLen: Longword;
+  TimesRead: Longword;
   MsgIdCrc: Longword;
   ReplyCrc: Longword;
-  ReplyTo: Longint;
-  ReplyFirst: Longint;
-  ReplyNext: Longint;
+  ReplyTo: Longword;
+  ReplyFirst: Longword;
+  ReplyNext: Longword;
   DateWritten: Longword;
   DateRcvd: Longword;
   DateArrived: Longword;
-  MsgNum: Longint;
-  Attr1: Longint;
-  Attr2: Longint;
-  TextOfs: Longint;
-  TextLen: Longint;
+  MsgNum: Longword;
+  Attr1: Longword;
+  Attr2: Longword;
+  TextOfs: Longword;
+  TextLen: Longword;
   PwdCrc: Longword;
-  Cost: Longint;
+  Cost: Longword;
  end;
 
  TJamIndex = packed record
@@ -173,10 +173,10 @@ type
  TJamBaseHeader = packed record
   Signature: array[1..4] of Char;
   Created: Longword;
-  ModCounter: Longint;
-  ActiveMsgs: Longint;
+  ModCounter: Longword;
+  ActiveMsgs: Longword;
   PwdCRC: Longword;
-  BaseMsgNum: Longint;
+  BaseMsgNum: Longword;
   Extra: array[1..1000] of Char;
  end;
 
@@ -969,9 +969,9 @@ function IsValidMessageBaseDateTime(var DateTime: TMessageBaseDateTime): Boolean
    IsValidMessageBaseDateTime:=(Year >= 1980) and
                                (Month >= 1) and (Month <= 12) and
                                (Day >= 1) and (Day <= 31) and
-                               (Hour >= 0) and (Hour <= 23) and
-                               (Min >= 0) and (Min <= 59) and
-                               (Sec >= 0) and (Sec <= 59);
+                               (Hour <= 23) and
+                               (Min <= 59) and
+                               (Sec <= 59);
  end;
 
 procedure GetCurrentMessageBaseDateTime(var DateTime: TMessageBaseDateTime);

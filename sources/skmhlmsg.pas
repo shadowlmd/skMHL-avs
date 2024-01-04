@@ -60,8 +60,8 @@ type
   procedure SetFromAddress(var Address: TAddress; const FreshMSGID: Boolean); virtual;
   procedure SetToAddress(var Address: TAddress); virtual;
   procedure SetFromAndToAddress(var FromAddress, ToAddress: TAddress; const FreshMSGID: Boolean); virtual;
-  function GetAttribute(Attribute: Longint): Boolean; virtual;
-  procedure SetAttribute(Attribute: Longint; Enable: Boolean); virtual;
+  function GetAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -90,7 +90,7 @@ type
   procedure RebuildIndex;
   procedure SetMapDot(Num: Word; Value: Boolean);
   function GetMapDot(Num: Word): Boolean;
-  function MapAttribute(var Attribute: Longint): Boolean;
+  function MapAttribute(var Attribute: Longword): Boolean;
  end;
 
 implementation
@@ -477,7 +477,7 @@ procedure TFidoMessageBase.SetFromAndToAddress(var FromAddress, ToAddress: TAddr
   Header.DestNode:=ToAddress.Node;
  end;
 
-function TFidoMessageBase.GetAttribute(Attribute: Longint): Boolean;
+function TFidoMessageBase.GetAttribute(Attribute: Longword): Boolean;
  begin
   if not MapAttribute(Attribute) then
    GetAttribute:=False
@@ -485,7 +485,7 @@ function TFidoMessageBase.GetAttribute(Attribute: Longint): Boolean;
    GetAttribute:=Header.Attr and Attribute = Attribute;
  end;
 
-procedure TFidoMessageBase.SetAttribute(Attribute: Longint; Enable: Boolean);
+procedure TFidoMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
  begin
   if MapAttribute(Attribute) then
    if Enable then
@@ -885,8 +885,8 @@ function TFidoMessageBase.GetMapDot(Num: Word): Boolean;
   GetMapDot:=Map[Num shr $03] and MapPos[Num and $07] <> 0;
  end;
 
-function TFidoMessageBase.MapAttribute(var Attribute: Longint): Boolean;
- procedure DoMapping(const AAttribute: Longint);
+function TFidoMessageBase.MapAttribute(var Attribute: Longword): Boolean;
+ procedure DoMapping(const AAttribute: Longword);
   begin
    Attribute:=AAttribute;
   end;

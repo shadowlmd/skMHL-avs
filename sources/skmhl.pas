@@ -278,8 +278,8 @@ type
   procedure TruncateText; virtual;
   procedure ReadText(var Buf; Count: Longint); virtual;
   procedure WriteText(var Buf; Count: Longint); virtual;
-  function GetAttribute(Attribute: Longint): Boolean; virtual;
-  procedure SetAttribute(Attribute: Longint; Enable: Boolean); virtual;
+  function GetAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -744,12 +744,12 @@ procedure TMessageBase.WriteText(var Buf; Count: Longint);
   MessageText^.Write(Buf, Count);
  end;
 
-function TMessageBase.GetAttribute(Attribute: Longint): Boolean;
+function TMessageBase.GetAttribute(Attribute: Longword): Boolean;
  begin
   Abstract;
  end;
 
-procedure TMessageBase.SetAttribute(Attribute: Longint; Enable: Boolean);
+procedure TMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
  begin
   Abstract;
  end;

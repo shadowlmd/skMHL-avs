@@ -94,8 +94,8 @@ type
   procedure GetFromAddress(var Address: TAddress); virtual;
   procedure GetToAddress(var Address: TAddress); virtual;
   procedure GetFromAndToAddress(var FromAddress, ToAddress: TAddress); virtual;
-  function GetAttribute(Attribute: Longint): Boolean; virtual;
-  procedure SetAttribute(Attribute: Longint; Enable: Boolean); virtual;
+  function GetAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -134,7 +134,7 @@ type
   procedure GetIndex(const Pos: Longint; var Index: TSquishIndex);
   procedure SetIndex(const Pos: Longint; var Index: TSquishIndex);
   function CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint; const Nearest: Boolean): Boolean;
-  function MapAttribute(var Attribute: Longint): Boolean;
+  function MapAttribute(var Attribute: Longword): Boolean;
   procedure SquishSwap(var A: Longint);
   function MakeHash(const Name: String): Longint;
   function GetFrame(const Position: Longint; var Frame: TSquishFrame): Boolean;
@@ -756,7 +756,7 @@ procedure TSquishMessageBase.GetFromAndToAddress(var FromAddress, ToAddress: TAd
   inherited GetFromAndToAddress(FromAddress, ToAddress);
  end;
 
-function TSquishMessageBase.GetAttribute(Attribute: Longint): Boolean;
+function TSquishMessageBase.GetAttribute(Attribute: Longword): Boolean;
  begin
   if not MapAttribute(Attribute) then
    begin
@@ -768,7 +768,7 @@ function TSquishMessageBase.GetAttribute(Attribute: Longint): Boolean;
   GetAttribute:=SquishMessageHeader.Attr and Attribute <> 0;
  end;
 
-procedure TSquishMessageBase.SetAttribute(Attribute: Longint; Enable: Boolean);
+procedure TSquishMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
  begin
   if not MapAttribute(Attribute) then
    Exit;
@@ -1259,7 +1259,7 @@ function TSquishMessageBase.CheckIndex(const Message: Longint; var Index: TSquis
   CheckIndex:=False;
  end;
 
-function TSquishMessageBase.MapAttribute(var Attribute: Longint): Boolean;
+function TSquishMessageBase.MapAttribute(var Attribute: Longword): Boolean;
  begin
   MapAttribute:=True;
 

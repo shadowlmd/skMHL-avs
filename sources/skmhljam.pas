@@ -44,24 +44,31 @@ const
  jamFLAGS               = $07D3;
  jamTZUTC               = $07D4;
 
+ jamaLocal              = $00000001;
+ jamaTransit            = $00000002;
  jamaPrivate            = $00000004;
- jamaCrash              = $00000100;
  jamaReceived           = $00000008;
  jamaSent               = $00000010;
- jamaAttach             = $00002000;
- jamaTransit            = $00000002;
- jamaOrphan             = $00040000;
  jamaKill               = $00000020;
- jamaLocal              = $00000001;
+ jamaArchive            = $00000040;
  jamaHold               = $00000080;
+ jamaCrash              = $00000100;
+ jamaImmediate          = $00000200;
+ jamaDirect             = $00000400;
+ jamaGate               = $00000800;
  jamaFRq                = $00001000;
+ jamaAttach             = $00002000;
+ jamaTfs                = $00004000;
+ jamaKfs                = $00008000;
  jamaRRq                = $00010000;
- jamaARq                = $00020000;
-
+ jamaCfm                = $00020000;
+ jamaOrphan             = $00040000;
+ jamaFpu                = $00400000;
  jamaTypeLocal          = $00800000;
  jamaTypeEcho           = $01000000;
  jamaTypeNet            = $02000000;
-
+ jamaNoDisp             = $20000000;
+ jamaLocked             = $40000000;
  jamaKilled             = $80000000;
 
  JamSubBufferSize       = $4000;
@@ -124,8 +131,8 @@ type
   procedure SetFromAddress(var Address: TAddress; const FreshMSGID: Boolean); virtual;
   procedure SetToAddress(var Address: TAddress); virtual;
   procedure SetFromAndToAddress(var FromAddress, ToAddress: TAddress; const FreshMSGID: Boolean); virtual;
-  function GetAttribute(Attribute: Longint): Boolean; virtual;
-  procedure SetAttribute(Attribute: Longint; Enable: Boolean); virtual;
+  function GetAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -164,7 +171,7 @@ type
   DataLink: PMessageBaseStream;
   function GetSubField(const Number: Longint; var ID: Longint; var S: String): Boolean;
   procedure AddSubField(const ID: Longint; const S: String);
-  function MapAttribute(var Attribute: Longint): Boolean;
+  function MapAttribute(var Attribute: Longword): Boolean;
   function StrCrc32(const S: String): Longint;
   procedure ResetAll;
  end;
@@ -557,7 +564,7 @@ function TJamMessageBase.OpenMessage: Boolean;
     Exit;
    end;
 
-  if (JamMessageHeader.JamHeader.TextOfs < 0) or (JamMessageHeader.JamHeader.TextOfs > DataLink^.GetSize) then
+  if JamMessageHeader.JamHeader.TextOfs > DataLink^.GetSize then
    begin
     SetStatus(jmbWrongDataLocation);
 
@@ -699,7 +706,7 @@ function TJamMessageBase.OpenMessageHeader: Boolean;
     Exit;
    end;
 
-  if (JamMessageHeader.JamHeader.TextOfs < 0) or (JamMessageHeader.JamHeader.TextOfs > DataLink^.GetSize) then
+  if JamMessageHeader.JamHeader.TextOfs > DataLink^.GetSize then
    begin
     SetStatus(jmbWrongDataLocation);
 
@@ -853,7 +860,7 @@ procedure TJamMessageBase.SetFromAndToAddress(var FromAddress, ToAddress: TAddre
   SetToAddress(ToAddress);
  end;
 
-function TJamMessageBase.GetAttribute(Attribute: Longint): Boolean;
+function TJamMessageBase.GetAttribute(Attribute: Longword): Boolean;
  begin
   if not MapAttribute(Attribute) then
    begin
@@ -865,7 +872,7 @@ function TJamMessageBase.GetAttribute(Attribute: Longint): Boolean;
   GetAttribute:=JamMessageHeader.JamHeader.Attr1 and Attribute <> 0;
  end;
 
-procedure TJamMessageBase.SetAttribute(Attribute: Longint; Enable: Boolean);
+procedure TJamMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
  begin
   if not MapAttribute(Attribute) then
    Exit;
@@ -1259,7 +1266,7 @@ procedure TJamMessageBase.AddSubField(const ID: Longint; const S: String);
   Inc(JamMessageHeader.JamHeader.SubFieldLen, 8 + Length(S));
  end;
 
-function TJamMessageBase.MapAttribute(var Attribute: Longint): Boolean;
+function TJamMessageBase.MapAttribute(var Attribute: Longword): Boolean;
  begin
   MapAttribute:=True;
 
@@ -1276,11 +1283,21 @@ function TJamMessageBase.MapAttribute(var Attribute: Longint): Boolean;
    maHold: Attribute:=jamaHold;
    maFRq: Attribute:=jamaFRq;
    maRRq: Attribute:=jamaRRq;
-   maARq: Attribute:=jamaARq;
   else
-   MapAttribute:=(Attribute = jamaTypeLocal) or
+   MapAttribute:=(Attribute = jamaArchive) or
+                 (Attribute = jamaImmediate) or
+                 (Attribute = jamaDirect) or
+                 (Attribute = jamaGate) or
+                 (Attribute = jamaTfs) or
+                 (Attribute = jamaKfs) or
+                 (Attribute = jamaCfm ) or
+                 (Attribute = jamaFpu) or
+                 (Attribute = jamaTypeLocal) or
                  (Attribute = jamaTypeEcho) or
-                 (Attribute = jamaTypeNet);
+                 (Attribute = jamaTypeNet) or
+                 (Attribute = jamaNoDisp) or
+                 (Attribute = jamaLocked) or
+                 (Attribute = jamaKilled);
   end;
  end;
 
