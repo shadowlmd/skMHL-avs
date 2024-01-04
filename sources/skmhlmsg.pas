@@ -62,6 +62,8 @@ type
   procedure SetFromAndToAddress(var FromAddress, ToAddress: TAddress; const FreshMSGID: Boolean); virtual;
   function GetAttribute(Attribute: Longword): Boolean; virtual;
   procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
+  function GetLocalAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetLocalAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -482,16 +484,26 @@ function TFidoMessageBase.GetAttribute(Attribute: Longword): Boolean;
   if not MapAttribute(Attribute) then
    GetAttribute:=False
   else
-   GetAttribute:=Header.Attr and Attribute = Attribute;
+   GetAttribute:=GetLocalAttribute(Attribute);
  end;
 
 procedure TFidoMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
  begin
   if MapAttribute(Attribute) then
-   if Enable then
-    Header.Attr:=Header.Attr or Attribute
-   else
-    Header.Attr:=Header.Attr and not Attribute;
+   SetLocalAttribute(Attribute, Enable);
+ end;
+
+function TFidoMessageBase.GetLocalAttribute(Attribute: Longword): Boolean;
+ begin
+  GetLocalAttribute:=Header.Attr and Attribute = Attribute;
+ end;
+
+procedure TFidoMessageBase.SetLocalAttribute(Attribute: Longword; Enable: Boolean);
+ begin
+  if Enable then
+   Header.Attr:=Header.Attr or Attribute
+  else
+   Header.Attr:=Header.Attr and not Attribute;
  end;
 
 { Warning!

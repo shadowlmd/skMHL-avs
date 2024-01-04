@@ -96,6 +96,8 @@ type
   procedure GetFromAndToAddress(var FromAddress, ToAddress: TAddress); virtual;
   function GetAttribute(Attribute: Longword): Boolean; virtual;
   procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
+  function GetLocalAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetLocalAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -765,7 +767,7 @@ function TSquishMessageBase.GetAttribute(Attribute: Longword): Boolean;
     Exit;
    end;
 
-  GetAttribute:=SquishMessageHeader.Attr and Attribute <> 0;
+  GetAttribute:=GetLocalAttribute(Attribute);
  end;
 
 procedure TSquishMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
@@ -773,6 +775,16 @@ procedure TSquishMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
   if not MapAttribute(Attribute) then
    Exit;
 
+  SetLocalAttribute(Attribute, Enable);
+ end;
+
+function TSquishMessageBase.GetLocalAttribute(Attribute: Longword): Boolean;
+ begin
+  GetLocalAttribute:=SquishMessageHeader.Attr and Attribute <> 0;
+ end;
+
+procedure TSquishMessageBase.SetLocalAttribute(Attribute: Longword; Enable: Boolean);
+ begin
   if Enable then
    SquishMessageHeader.Attr:=SquishMessageHeader.Attr or Attribute
   else
@@ -1277,11 +1289,9 @@ function TSquishMessageBase.MapAttribute(var Attribute: Longword): Boolean;
    maFRq: Attribute:=squishaFRq;
    maRRq: Attribute:=squishaRRq;
    maARq: Attribute:=squishaARq;
+   maScanned: Attribute:=squishaScanned;
   else
-   if Attribute = maScanned then
-    Attribute:=squishaScanned
-   else
-    MapAttribute:=False;
+   MapAttribute:=False;
   end;
  end;
 

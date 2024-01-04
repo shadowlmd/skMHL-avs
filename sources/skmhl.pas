@@ -280,6 +280,8 @@ type
   procedure WriteText(var Buf; Count: Longint); virtual;
   function GetAttribute(Attribute: Longword): Boolean; virtual;
   procedure SetAttribute(Attribute: Longword; Enable: Boolean); virtual;
+  function GetLocalAttribute(Attribute: Longword): Boolean; virtual;
+  procedure SetLocalAttribute(Attribute: Longword; Enable: Boolean); virtual;
   procedure GetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure GetArrivedDateTime(var DateTime: TMessageBaseDateTime); virtual;
   procedure SetWrittenDateTime(var DateTime: TMessageBaseDateTime); virtual;
@@ -750,6 +752,16 @@ function TMessageBase.GetAttribute(Attribute: Longword): Boolean;
  end;
 
 procedure TMessageBase.SetAttribute(Attribute: Longword; Enable: Boolean);
+ begin
+  Abstract;
+ end;
+
+function TMessageBase.GetLocalAttribute(Attribute: Longword): Boolean;
+ begin
+  Abstract;
+ end;
+
+procedure TMessageBase.SetLocalAttribute(Attribute: Longword; Enable: Boolean);
  begin
   Abstract;
  end;
