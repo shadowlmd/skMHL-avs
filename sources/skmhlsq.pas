@@ -58,7 +58,6 @@ const
 
  SquishMaxMsg           : Longint = $FFFF;
  SquishKeepDays         : Longint = $7FFF;
- SquishMemoryIndex      : Boolean = False;
 
 type
  PControlInformationBuffer = ^TControlInformationBuffer;
@@ -130,9 +129,6 @@ type
   SquishIndexPos: Longint;
   DataLink: PMessageBaseStream;
   IndexLink: PMessageBaseStream;
-  IndexLinkFile: PMessageBaseStream;
-  IndexLinkMemory: PMessageBaseStream;
-  IndexModified: Boolean;
   procedure GetIndex(const Pos: Longint; var Index: TSquishIndex);
   procedure SetIndex(const Pos: Longint; var Index: TSquishIndex);
   function CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint; const Nearest: Boolean): Boolean;
@@ -160,8 +156,6 @@ constructor TSquishMessageBase.Init;
 
   DataLink:=nil;
   IndexLink:=nil;
-  IndexLinkFile:=nil;
-  IndexLinkMemory:=nil;
  end;
 
 destructor TSquishMessageBase.Done;
@@ -196,8 +190,6 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
 
   DataLink:=nil;
   IndexLink:=nil;
-  IndexLinkFile:=nil;
-  IndexLinkMemory:=nil;
 
   repeat
    DataLink:=CreateMessageBaseFileStream(GetBasePath + esSQD, smOpen or smDenyWrite);
@@ -209,23 +201,13 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
      Break;
     end;
 
-   IndexLinkFile:=CreateMessageBaseFileStream(GetBasePath + esSQI, smOpen or smDenyWrite);
-   IndexLink:=IndexLinkFile;
+   IndexLink:=CreateMessageBaseFileStream(GetBasePath + esSQI, smOpen or smDenyWrite);
 
    if IndexLink^.Status <> smOk then
     begin
      SetStatus(smbCantOpenSQI);
 
      Break;
-    end;
-
-   if SquishMemoryIndex then
-    begin
-     IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
-     IndexLinkFile^.Seek(0);
-     IndexLinkMemory^.CopyFrom(IndexLinkFile^, IndexLinkFile^.GetSize);
-     IndexLink:=IndexLinkMemory;
-     IndexModified:=False;
     end;
 
    DataLink^.Read(SquishBaseHeader, SizeOf(SquishBaseHeader));
@@ -239,16 +221,11 @@ function TSquishMessageBase.Open(const Path: String): Boolean;
   if DataLink <> nil then
    Dispose(DataLink, Done);
 
-  if IndexLinkFile <> nil then
-   Dispose(IndexLinkFile, Done);
-
-  if IndexLinkMemory <> nil then
-   Dispose(IndexLinkMemory, Done);
+  if IndexLink <> nil then
+   Dispose(IndexLink, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
-  IndexLinkFile:=nil;
-  IndexLinkMemory:=nil;
 
   SetBasePath('');
  end;
@@ -269,8 +246,6 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
   repeat
    DataLink:=nil;
    IndexLink:=nil;
-   IndexLinkFile:=nil;
-   IndexLinkMemory:=nil;
 
    DataLink:=CreateMessageBaseFileStream(GetBasePath + esSQD, smCreate or smDenyWrite);
 
@@ -281,21 +256,13 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
      Break;
     end;
 
-   IndexLinkFile:=CreateMessageBaseFileStream(GetBasePath + esSQI, smCreate or smDenyWrite);
-   IndexLink:=IndexLinkFile;
+   IndexLink:=CreateMessageBaseFileStream(GetBasePath + esSQI, smCreate or smDenyWrite);
 
    if IndexLink^.Status <> smOk then
     begin
      SetStatus(smbCantCreateSQI);
 
      Break;
-    end;
-
-   if SquishMemoryIndex then
-    begin
-     IndexLinkMemory:=CreateMessageBaseMemoryStream(MaxMessageSize);
-     IndexLink:=IndexLinkMemory;
-     IndexModified:=False;
     end;
 
    with SquishBaseHeader do
@@ -338,16 +305,11 @@ function TSquishMessageBase.Create(const Path: String): Boolean;
   if DataLink <> nil then
    Dispose(DataLink, Done);
 
-  if IndexLinkFile <> nil then
-   Dispose(IndexLinkFile, Done);
-
-  if IndexLinkMemory <> nil then
-   Dispose(IndexLinkMemory, Done);
+  if IndexLink <> nil then
+   Dispose(IndexLink, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
-  IndexLinkFile:=nil;
-  IndexLinkMemory:=nil;
 
   SetBasePath('');
  end;
@@ -368,25 +330,11 @@ procedure TSquishMessageBase.Close;
 
   SaveBaseHeader;
 
-  if (IndexLink <> nil) and (IndexLink = IndexLinkMemory) then
-   begin
-    if IndexModified then
-     begin
-      IndexLinkMemory^.Seek(0);
-      IndexLinkFile^.Seek(0);
-      IndexLinkFile^.CopyFrom(IndexLinkMemory^, IndexLinkMemory^.GetSize);
-      IndexLinkFile^.Truncate;
-     end;
-    Dispose(IndexLinkMemory, Done);
-   end;
-
   Dispose(DataLink, Done);
-  Dispose(IndexLinkFile, Done);
+  Dispose(IndexLink, Done);
 
   DataLink:=nil;
   IndexLink:=nil;
-  IndexLinkFile:=nil;
-  IndexLinkMemory:=nil;
  end;
 
 procedure TSquishMessageBase.PreparePath(const Path: String);
@@ -1086,8 +1034,6 @@ function TSquishMessageBase.KillMessage: Boolean;
 
   Dec(SquishIndexPos, SizeOf(SquishIndex));
 
-  IndexModified:=True;
-
   KillMessage:=True;
  end;
 
@@ -1238,8 +1184,6 @@ procedure TSquishMessageBase.SetIndex(const Pos: Longint; var Index: TSquishInde
   IndexLink^.Seek(Pos);
 
   IndexLink^.Write(Index, SizeOf(Index));
-
-  IndexModified:=True;
  end;
 
 function TSquishMessageBase.CheckIndex(const Message: Longint; var Index: TSquishIndex; var IndexPos: Longint;
