@@ -976,26 +976,13 @@ function IsValidMessageBaseDateTime(var DateTime: TMessageBaseDateTime): Boolean
 
 procedure GetCurrentMessageBaseDateTime(var DateTime: TMessageBaseDateTime);
  var
-{$IFDEF VIRTUALPASCAL}
-  Year, Month, Day, Dow, Hour, Min, Sec, Sec100: Longint;
-{$ELSE}
-  Year, Month, Day, {$IFNDEF DELPHI}Dow,{$ENDIF} Hour, Min, Sec, Sec100: Word;
-{$ENDIF}
+  Dow: Word;
  begin
-  {$IFDEF DELPHI}
-   DecodeDate(Date, Year, Month, Day);
-   DecodeTime(Time, Hour, Min, Sec, Sec100);
-  {$ELSE}
+  with DateTime do
+  begin
    Dos.GetDate(Year, Month, Day, Dow);
    Dos.GetTime(Hour, Min, Sec, Sec100);
-  {$ENDIF}
-  DateTime.Year:=Year;
-  DateTime.Month:=Month;
-  DateTime.Day:=Day;
-  DateTime.Hour:=Hour;
-  DateTime.Min:=Min;
-  DateTime.Sec:=Sec;
-  DateTime.Sec100:=Sec100;
+  end;
  end;
 
 procedure MessageBaseDateTimeToDosDateTime(var DateTime: TMessageBaseDateTime; var DosDateTime: Longword);
