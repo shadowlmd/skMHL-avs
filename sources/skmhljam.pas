@@ -153,6 +153,9 @@ type
   procedure SetReplyNext(const AReplyNext: Longint);
   procedure GetMessageHeader(var AHeader: TJamMessageHeaderFirst);
   procedure GetStreams(var AHeaderLink, AIndexLink, ADataLink: PMessageBaseStream);
+  function GetHighWater: Longword;
+  procedure SetHighWater(const AHighWater: Longword);
+  procedure SeekHighWater;
   function GetRead: Boolean; virtual;
   procedure SetRead(const Value: Boolean); virtual;
  private
@@ -397,6 +400,7 @@ function TJamMessageBase.Create(const Path: String): Boolean;
    JamBaseHeader.ActiveMsgs:=0;
    JamBaseHeader.PwdCRC:=$FFFFFFFF;
    JamBaseHeader.BaseMsgNum:=1;
+   JamBaseHeader.HighWater:=0;
 
    HeaderLink^.Seek(0);
    HeaderLink^.Write(JamBaseHeader, SizeOf(JamBaseHeader));
@@ -1215,6 +1219,21 @@ procedure TJamMessageBase.GetStreams(var AHeaderLink, AIndexLink, ADataLink: PMe
   AHeaderLink:=HeaderLink;
   AIndexLink:=IndexLink;
   ADataLink:=DataLink;
+ end;
+
+function TJamMessageBase.GetHighWater: Longword;
+ begin
+  GetHighWater:=JamBaseHeader.HighWater;
+ end;
+
+procedure TJamMessageBase.SetHighWater(const AHighWater: Longword);
+ begin
+  JamBaseHeader.HighWater:=AHighWater;
+ end;
+
+procedure TJamMessageBase.SeekHighWater;
+ begin
+  Seek(JamBaseHeader.HighWater);
  end;
 
 function TJamMessageBase.GetRead: Boolean;
